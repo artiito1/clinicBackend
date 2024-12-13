@@ -1,13 +1,17 @@
 const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/apiError');
-const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
+const { getClinicDatabaseConnection } = require('../service/databaseConnectionService');
+const { createAppointmentModel, createPatientModel } = require('../service/databaseService');
 
 // الحصول على جميع المواعيد
 exports.getAppointments = asyncHandler(async (req, res) => {
-  console.log('Fetching appointments for clinic:', req.user.id);
-  const appointments = await req.models.Appointment.find({ clinicId: req.user.id });
-  console.log('Fetched appointments:', appointments);
+  // استخدام خدمة الاتصال بقاعدة البيانات
+  const clinicDb = await getClinicDatabaseConnection(req.user.databaseName);
+  // إنشاء نموذج المواعيد باستخدام قاعدة البيانات الصحيحة
+  const Appointment = createAppointmentModel(clinicDb);
+  // جلب المواعيد من قاعدة البيانات
+  const appointments = await Appointment.find({});
   res.status(200).json({ status: 'success', data: appointments });
 });
 
@@ -30,8 +34,15 @@ exports.createAppointment = asyncHandler(async (req, res, next) => {
   const { patientName, phoneNumber, gender, date, time, status, notes } = req.body;
   
   try {
+    // استخدام خدمة الاتصال بقاعدة البيانات
+    const clinicDb = await getClinicDatabaseConnection(req.user.databaseName);
+
+    // إنشاء نموذج المواعيد ونموذج المرضى باستخدام قاعدة البيانات الصحيحة
+    const Appointment = createAppointmentModel(clinicDb);
+    const Patient = createPatientModel(clinicDb);
+
     // البحث عن المريض باستخدام الاسم ورقم الهاتف
-    let patient = await req.models.Patient.findOne({ 
+    let patient = await Patient.findOne({ 
       name: patientName, 
       phone: phoneNumber,
       clinicId: req.user.id
@@ -39,35 +50,29 @@ exports.createAppointment = asyncHandler(async (req, res, next) => {
 
     // إذا لم يتم العثور على المريض، قم بإنشاء مريض جديد
     if (!patient) {
-      patient = await req.models.Patient.create({
+      patient = await Patient.create({
         name: patientName,
         phone: phoneNumber,
         gender,
-        clinicId: req.user.id,
+        clinicId: req.user.id
       });
-      console.log('New patient created:', patient);
-    } else if (patient.gender !== gender) {
-      // إذا وجد المريض ولكن الجنس مختلف، قم بتحديثه
-      patient.gender = gender;
-      await patient.save();
-      console.log('Patient gender updated:', patient);
     }
 
-    const appointmentData = {
+    // إنشاء موعد جديد
+    const newAppointment = new Appointment({
       patientName,
-      patientId: patient._id,
       phoneNumber,
+      gender,
       date,
       time,
       status,
       notes,
-      clinicId: req.user.id
-    };
+      clinicId: req.user.id,
+      patientId: patient._id
+    });
 
-    const appointment = await req.models.Appointment.create(appointmentData);
-
-    console.log('Appointment created successfully:', appointment);
-    res.status(201).json({ status: 'success', data: appointment });
+    await newAppointment.save();
+    res.status(201).json({ status: 'success', data: newAppointment });
   } catch (error) {
     console.error('Error creating appointment:', error);
     if (error.name === 'ValidationError') {

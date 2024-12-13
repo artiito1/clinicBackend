@@ -13,7 +13,7 @@ exports.createClinicDatabase = async (clinicName) => {
           .toString()
           .padStart(2, '0')}`;
 
-  const clinicDb = await mongoose.createConnection(`${process.env.MONGO_URI.replace('?', `${dbName}?`)}`, {
+  const clinicDb = await mongoose.createConnection(`${process.env.MONGODB_URI.replace('?', `${dbName}?`)}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
@@ -33,19 +33,32 @@ exports.createAppointmentModel = (clinicDb) => {
     reason: { type: String },
     status: { type: String, enum: ['scheduled', 'completed', 'cancelled'], default: 'scheduled' },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    clinicId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    patientId: { type: mongoose.Schema.Types.ObjectId, required: true }
   });
 
   return clinicDb.model('Appointment', AppointmentSchema);
 };
 
-exports.createTestAppointment = async (AppointmentModel) => {
-  const testAppointment = new AppointmentModel({
-    patientName: 'مريض تجريبي',
-    date: new Date(),
-    time: '10:00',
-    reason: 'فحص عام',
-    status: 'scheduled'
+exports.createPatientModel = (clinicDb) => {
+  const PatientSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    gender: { type: String, required: true },
+    clinicId: { type: mongoose.Schema.Types.ObjectId, required: true }
   });
-  await testAppointment.save();
+
+  return clinicDb.model('Patient', PatientSchema);
 };
+
+// exports.createTestAppointment = async (AppointmentModel) => {
+//   const testAppointment = new AppointmentModel({
+//     patientName: 'مريض تجريبي',
+//     date: new Date(),
+//     time: '10:00',
+//     reason: 'فحص عام',
+//     status: 'scheduled'
+//   });
+//   await testAppointment.save();
+// };
