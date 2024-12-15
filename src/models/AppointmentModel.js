@@ -3,53 +3,41 @@ const mongoose = require('mongoose');
 const appointmentSchema = new mongoose.Schema({
   patientName: {
     type: String,
-    required: [true, 'Patient name is required']
-  },
-  patientId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Patient',
-    required: [true, 'Patient ID is required']
-  },
-  phoneNumber: {
-    type: String,
-    required: [true, 'Phone number is required']
-  },
-  toothNumber: {
-    type: Number,
-    required: [true, 'Tooth number is required'],
-    min: 1,
-    max: 32
-  },
-  treatment: {
-    type: String,
-    required: [true, 'Treatment description is required']
+    required: true
   },
   date: {
     type: Date,
-    required: [true, 'Appointment date is required']
+    required: true
   },
   time: {
     type: String,
-    required: [true, 'Appointment time is required']
+    required: true
+  },
+  reason: {
+    type: String
   },
   status: {
     type: String,
     enum: ['scheduled', 'completed', 'cancelled'],
     default: 'scheduled'
   },
-  sessionNumber: {
-    type: Number,
-    default: 1
+  createdAt: {
+    type: Date,
+    default: Date.now
   },
-  cost: {
-    type: Number,
-    required: [true, 'Treatment cost is required']
+  updatedAt: {
+    type: Date,
+    default: Date.now
   },
-  notes: String,
-  clinicId: {
+  patientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Clinic',
-    required: [true, 'Clinic ID is required']
+    ref: 'Patient',
+    required: true
+  },
+  doctorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Doctor',
+    required: true
   }
 }, { timestamps: true });
 

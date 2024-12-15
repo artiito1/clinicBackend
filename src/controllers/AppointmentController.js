@@ -54,7 +54,6 @@ exports.createAppointment = asyncHandler(async (req, res, next) => {
         name: patientName,
         phone: phoneNumber,
         gender,
-        clinicId: req.user.id
       });
     }
 
@@ -67,7 +66,6 @@ exports.createAppointment = asyncHandler(async (req, res, next) => {
       time,
       status,
       notes,
-      clinicId: req.user.id,
       patientId: patient._id
     });
 
@@ -86,7 +84,7 @@ exports.createAppointment = asyncHandler(async (req, res, next) => {
 
 // الحصول على موعد محدد
 exports.getAppointmentById = asyncHandler(async (req, res, next) => {
-  const appointment = await req.models.Appointment.findOne({ _id: req.params.id, clinicId: req.user.clinicId });
+  const appointment = await req.models.Appointment.findOne({ _id: req.params.id});
   
   if (!appointment) {
     return next(new ApiError('Appointment not found', 404));
@@ -100,11 +98,11 @@ exports.updateAppointment = asyncHandler(async (req, res, next) => {
   console.log('Update data:', req.body);
   console.log('User data:', req.user);
 
-  const { patientName, phoneNumber, date, time, status, notes } = req.body;
+  const { patientName, phoneNumber, date, time, status, notes, paidAmount, remainingAmount, previousSessions } = req.body;
 
   const appointment = await req.models.Appointment.findOneAndUpdate(
-    { _id: req.params.id, clinicId: req.user.id }, // تغيير من req.user.clinicId إلى req.user.id
-    { patientName, phoneNumber, date, time, status, notes },
+    { _id: req.params.id},
+    { patientName, phoneNumber, date, time, status, notes, paidAmount, remainingAmount, previousSessions },
     { new: true, runValidators: true }
   );
 
@@ -119,13 +117,10 @@ exports.updateAppointment = asyncHandler(async (req, res, next) => {
 // حذف موعد
 exports.deleteAppointment = asyncHandler(async (req, res) => {
   const appointment = await req.models.Appointment.findOneAndDelete({ 
-    _id: req.params.id, 
-    clinicId: req.user.id 
+    _id: req.params.id
   });
-
   if (!appointment) {
     return res.status(404).json({ status: 'fail', message: 'Appointment not found' });
   }
-
   res.status(200).json({ status: 'success', data: null });
 });

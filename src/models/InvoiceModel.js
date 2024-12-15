@@ -32,10 +32,15 @@ const invoiceSchema = new mongoose.Schema({
     enum: ['paid', 'unpaid', 'partially paid'],
     required: function() { return this.type === 'patient'; }
   },
-  clinicId: {
+  doctorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Clinic',
+    ref: 'Doctor',
     required: true
+  },
+  patientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Patient',
+    required: function() { return this.type === 'patient'; }
   }
 }, { timestamps: true });
 

@@ -19,8 +19,7 @@ exports.createPatient = asyncHandler(async (req, res, next) => {
       gender,
       phone,
       email,
-      medicalHistory,
-      clinicId: req.user.id 
+      medicalHistory
     });
 
     console.log('Created patient:', patient);
@@ -36,7 +35,7 @@ exports.createPatient = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPatientById = asyncHandler(async (req, res, next) => {
-  const patient = await req.models.Patient.findOne({ _id: req.params.id, clinicId: req.user.clinicId });
+  const patient = await req.models.Patient.findOne({ _id: req.params.id });
   
   if (!patient) {
     return next(new ApiError('Patient not found', 404));
@@ -52,7 +51,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
   const { name, age, gender, phone, email, medicalHistory, lastVisit } = req.body;
 
   const patient = await req.models.Patient.findOneAndUpdate(
-    { _id: req.params.id, clinicId: req.user.id }, // تغيير من req.user.clinicId إلى req.user.id
+    { _id: req.params.id },
     { name, age, gender, phone, email, medicalHistory, lastVisit },
     { new: true, runValidators: true }
   );
@@ -66,7 +65,7 @@ exports.updatePatient = asyncHandler(async (req, res, next) => {
 });
 
 exports.deletePatient = asyncHandler(async (req, res, next) => {
-  const patient = await req.models.Patient.findOneAndDelete({ _id: req.params.id, clinicId: req.user.clinicId });
+  const patient = await req.models.Patient.findOneAndDelete({ _id: req.params.id });
 
   if (!patient) {
     return next(new ApiError('Patient not found', 404));

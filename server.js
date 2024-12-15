@@ -8,7 +8,7 @@ const patientsRoutes = require('./src/routes/patientsRoutes');
 const appointmentsRoutes = require('./src/routes/AppointmentRoutes');
 const invoicesRoutes = require('./src/routes/InvoiceRoutes');
 const connectDB = require('./src/config/database');
-
+const doctorRoutes = require('./src/routes/DoctorRoutes');
 // استيراد معالج الأخطاء العام
 const globalError = require('./src/middleware/errorMiddleware');
 const ApiError = require('./src/utils/apiError');
@@ -32,7 +32,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/patients',protect, patientsRoutes);
 app.use('/api/appointments',appointmentsRoutes);
 app.use('/api/invoices',protect, invoicesRoutes);
-
+app.use('/api/doctors', doctorRoutes);
 // معالج الأخطاء العام
 app.use(globalError);
 

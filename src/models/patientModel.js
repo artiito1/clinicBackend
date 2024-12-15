@@ -20,9 +20,9 @@ const patientSchema = new mongoose.Schema({
   email: String,
   medicalHistory: String,
   lastVisit: Date,
-  clinicId: {
+  doctorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Clinic',
+    ref: 'Doctor',
     required: true
   }
 }, { timestamps: true });

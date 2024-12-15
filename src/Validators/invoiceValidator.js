@@ -60,8 +60,12 @@ exports.updateInvoiceValidator = [
     .withMessage('Amount must be a number'),
   check('type')
     .optional()
-    .isIn(['expense', 'income'])
-    .withMessage('Type must be either expense or income'),
+    .isIn(['clinic', 'patient'])
+    .withMessage('Type must be either clinic or patient'),
+  check('status')
+    .optional()
+    .isIn(['paid', 'unpaid', 'partially paid'])
+    .withMessage('Invalid status'),
   validatorMiddleware,
 ];
 

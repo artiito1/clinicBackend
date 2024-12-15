@@ -2,35 +2,35 @@ const asyncHandler = require('express-async-handler');
 const ApiError = require('../utils/apiError');
 
 exports.getClinicInvoices = asyncHandler(async (req, res) => {
-  const invoices = await req.models.Invoice.find({ clinicId: req.user.id, type: 'clinic' });
+  const invoices = await req.models.Invoice.find({ type: 'clinic' });
   res.status(200).json({ status: 'success', results: invoices.length, data: invoices });
 });
 
 exports.getPatientInvoices = asyncHandler(async (req, res) => {
-  const invoices = await req.models.Invoice.find({ clinicId: req.user.id, type: 'patient' });
+  const invoices = await req.models.Invoice.find({ type: 'patient' });
   res.status(200).json({ status: 'success', results: invoices.length, data: invoices });
 });
 
 exports.createClinicInvoice = asyncHandler(async (req, res) => {
   console.log('Received data for clinic invoice:', req.body);
-  const invoice = await req.models.Invoice.create({ ...req.body, clinicId: req.user.id, type: 'clinic' });
+  const invoice = await req.models.Invoice.create({ ...req.body, type: 'clinic' });
   res.status(201).json({ status: 'success', data: invoice });
 });
 
 exports.createPatientInvoice = asyncHandler(async (req, res) => {
   console.log('Received data for patient invoice:', req.body);
-  const invoice = await req.models.Invoice.create({ ...req.body, clinicId: req.user.id, type: 'patient' });
+  const invoice = await req.models.Invoice.create({ ...req.body, type: 'patient' });
   res.status(201).json({ status: 'success', data: invoice });
 });
 
 exports.getInvoices = asyncHandler(async (req, res) => {
-  const invoices = await req.models.Invoice.find({ clinicId: req.user.id });
+  const invoices = await req.models.Invoice.find();
   res.status(200).json({ status: 'success', results: invoices.length, data: invoices });
 });
 
 exports.createInvoice = asyncHandler(async (req, res, next) => {
   try {
-    const invoice = await req.models.Invoice.create({ ...req.body, clinicId: req.user.id });
+    const invoice = await req.models.Invoice.create(req.body);
     res.status(201).json({ status: 'success', data: invoice });
   } catch (error) {
     if (error.name === 'ValidationError') {
